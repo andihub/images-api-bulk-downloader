@@ -25,7 +25,10 @@ export const Footer = (props: BoxProps) => {
         >
           View source code <GithubIcon mx="2px" />
         </Link>{" "}
-        - Pull requests welcome! 🚀
+        - Pull requests welcome! 🚀 -{" "}
+        <Link href="https://www.buymeacoffee.com/andidevc" isExternal>
+          Buy me a coffee ☕️
+        </Link>
       </Container>
     </Box>
   );
