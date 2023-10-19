@@ -6,10 +6,10 @@ export default class Document extends NextDocument {
     return (
       <Html lang="en">
         <Head>
-          <title>Image API bulk downloader</title>
+          <title>Images API bulk downloader</title>
           <meta
             property="og:title"
-            content="Image API bulk downloader"
+            content="Images API bulk downloader"
             key="title"
           />
           <meta

@@ -1,10 +1,13 @@
-# GitHub Codespaces ♥️ Next.js
+# Images API bulk downloader ♥️ Next.js
 
-Welcome to your shiny new Codespace running Next.js! We've got everything fired up and running for you to explore Next.js.
+This tool loads a the JSON content of an API, parses it and extracts
+the image URL, displays all the images and provides the possibility
+to download a single image or download selected images at once as a
+ZIP file.
 
-You've got a blank canvas to work on from a git perspective as well. There's a single initial commit with the what you're seeing right now - where you go from here is up to you!
+This software is provided 'as is'.
 
-Everything you do here is contained within this one codespace. There is no repository on GitHub yet. If and when you’re ready you can click "Publish Branch" and we’ll create your repository and push up your project. If you were just exploring then and have no further need for this code then you can simply delete your codespace and it's gone forever.
+---
 
 To run this application:
 
