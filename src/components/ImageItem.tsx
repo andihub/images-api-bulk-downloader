@@ -53,6 +53,8 @@ const ImageItem: React.FC<ImageItemProps> = ({
           alt={`Image ${image.name}`}
           borderTopRadius="lg"
           filter={isSelected ? "auto" : "grayscale(100%)"}
+          onClick={onToggleSelect}
+          cursor="pointer"
         />
         <CardBody>
           <Stack spacing="3">
