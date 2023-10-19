@@ -1,4 +1,4 @@
-import { DownloadIcon, ViewIcon } from "@chakra-ui/icons";
+import { DownloadIcon, ExternalLinkIcon, ViewIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -43,6 +43,10 @@ const ImageItem: React.FC<ImageItemProps> = ({
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const openInNewTab = (url) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <Box>
       <Card align="center">
@@ -82,6 +86,13 @@ const ImageItem: React.FC<ImageItemProps> = ({
               aria-label="Download"
               onClick={onDownload}
               icon={<DownloadIcon />}
+            />
+            <IconButton
+              colorScheme="blue"
+              variant="ghost"
+              aria-label="Open in new window"
+              onClick={() => openInNewTab(image.url)}
+              icon={<ExternalLinkIcon />}
             />
           </ButtonGroup>
         </CardFooter>
