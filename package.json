@@ -6,6 +6,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.1.1",
+    "@chakra-ui/next-js": "^2.1.5",
+    "@chakra-ui/react": "^2.8.1",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "framer-motion": "^10.16.4",
     "jszip": "3.10.1",
     "next": "^13.5.4",
     "react": "^18.2.0",
