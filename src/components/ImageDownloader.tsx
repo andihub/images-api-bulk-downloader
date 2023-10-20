@@ -8,6 +8,7 @@ import {
   FormHelperText,
   FormLabel,
   Input,
+  Progress,
   SimpleGrid,
   Text,
   VStack,
@@ -18,12 +19,15 @@ import ImageItem from "./ImageItem";
 
 export function ImageDownloader() {
   const [imageList, setImageList] = useState<JSON[]>([]);
-  const [apiUrl, setApiUrl] = useState<string>("https://picsum.photos/v2/list");
+  const [apiUrl, setApiUrl] = useState<string>(
+    "https://picsum.photos/v2/list?page=2&limit=100"
+  );
   const [isDownloading, setIsDownloading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [propertyToExtract, setPropertyToExtract] =
     useState<string>("download_url");
   const [selectedImages, setSelectedImages] = useState<number[]>([]);
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   const fetchImageList = async () => {
     try {
@@ -46,6 +50,7 @@ export function ImageDownloader() {
 
   const downloadImages = async () => {
     setIsDownloading(true);
+    setDownloadProgress(0);
     console.log("Starting image downloads...");
 
     const zip = new JSZip();
@@ -62,6 +67,7 @@ export function ImageDownloader() {
           const blob = await response.blob();
           zip.file(`image${index + 1}.jpg`, blob);
           console.log(`Downloaded image ${index + 1}`);
+          setDownloadProgress((index / selectedImagesData.length) * 100);
         } else {
           console.error(`Error downloading image: ${imageUrl}`);
         }
@@ -207,6 +213,11 @@ export function ImageDownloader() {
           >
             Download {selectedImages.length} selected images as ZIP
           </Button>
+          {isDownloading && (
+            <Box boxSize="full">
+              <Progress value={downloadProgress} size="md"></Progress>
+            </Box>
+          )}
           <ButtonGroup>
             <Button
               onClick={() => selectAllImages()}
