@@ -20,11 +20,12 @@ import {
   Stack,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React from "react";
 
 export interface Image {
   name: string;
   url: string;
+  id: string;
   raw: JSON;
 }
 
@@ -43,7 +44,7 @@ const ImageItem: React.FC<ImageItemProps> = ({
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const openInNewTab = (url) => {
+  const openInNewTab = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
@@ -73,7 +74,6 @@ const ImageItem: React.FC<ImageItemProps> = ({
         <CardFooter>
           <ButtonGroup spacing="2">
             <IconButton
-              // onClick={toggleRawJSON}
               onClick={onOpen}
               colorScheme="blue"
               variant="ghost"
@@ -102,7 +102,7 @@ const ImageItem: React.FC<ImageItemProps> = ({
         <ModalContent>
           <ModalHeader>Raw data</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody overflow="auto">
             <pre style={{ whiteSpace: "pre-wrap" }}>
               {JSON.stringify(image, null, 2)}
             </pre>

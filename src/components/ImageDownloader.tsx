@@ -16,6 +16,7 @@ import {
 import JSZip from "jszip";
 import { type Image } from "../components/ImageItem";
 import ImageItem from "./ImageItem";
+import AboutInfo from "./AboutInfo";
 
 export function ImageDownloader() {
   const [imageList, setImageList] = useState<JSON[]>([]);
@@ -24,8 +25,9 @@ export function ImageDownloader() {
   );
   const [isDownloading, setIsDownloading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
-  const [propertyToExtract, setPropertyToExtract] =
+  const [imageUrlProperty, setImageUrlProperty] =
     useState<string>("download_url");
+  const [idProperty, setIdProperty] = useState<string>("id");
   const [selectedImages, setSelectedImages] = useState<number[]>([]);
   const [downloadProgress, setDownloadProgress] = useState(0);
 
@@ -59,13 +61,14 @@ export function ImageDownloader() {
 
     for (let index = 0; index < selectedImagesData.length; index++) {
       const item = selectedImagesData[index];
-      const imageUrl = item[propertyToExtract];
+      const image = mapItemToImage(item, index);
+      const imageUrl = image.url;
 
       try {
         const response = await fetch(imageUrl);
         if (response.ok) {
           const blob = await response.blob();
-          zip.file(`image${index + 1}.jpg`, blob);
+          zip.file(image.name, blob);
           console.log(`Downloaded image ${index + 1}`);
           setDownloadProgress((index / selectedImagesData.length) * 100);
         } else {
@@ -93,7 +96,8 @@ export function ImageDownloader() {
 
   const downloadImage = (index: number) => {
     const item = imageList[index];
-    const imageUrl = item[propertyToExtract];
+    const image = mapItemToImage(item, index);
+    const imageUrl = image.url;
 
     try {
       const response = fetch(imageUrl);
@@ -103,7 +107,7 @@ export function ImageDownloader() {
           const objectURL = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = objectURL;
-          a.download = `image${index + 1}.jpg`;
+          a.download = image.name;
           a.style.display = "none";
           document.body.appendChild(a);
           a.click();
@@ -133,18 +137,13 @@ export function ImageDownloader() {
     setSelectedImages([]);
   };
 
-  const handleURLChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setApiUrl(e.target.value);
-  };
-
-  const handlePropertyChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setPropertyToExtract(e.target.value);
-  };
-
   const mapItemToImage = (item: JSON, index: number) => {
+    const id = item.hasOwnProperty(idProperty) ? item[idProperty] : index + 1;
+
     const image: Image = {
-      name: `image${index + 1}.jpg`,
-      url: item[propertyToExtract],
+      name: `image${id}.jpg`,
+      url: item[imageUrlProperty],
+      id,
       raw: item,
     };
 
@@ -155,22 +154,14 @@ export function ImageDownloader() {
     <VStack gap="8">
       <Container>
         <VStack gap="8">
-          <VStack gap="2" align="flex-start">
-            <Text fontSize="sm">
-              This tool loads a the JSON content of an API, parses it and
-              extracts the image URL, displays all the images and provides the
-              possibility to download a single image or download selected images
-              at once as a ZIP file.
-            </Text>
-            <Text fontSize="sm">This software is provided 'as is'.</Text>
-          </VStack>
+          <AboutInfo />
           <FormControl>
             <FormLabel htmlFor="downloadURL">API download URL:</FormLabel>
             <Input
               type="text"
               id="downloadURL"
               value={apiUrl}
-              onChange={handleURLChange}
+              onChange={(e) => setApiUrl(e.target.value)}
               disabled={isDownloading}
             />
             <FormHelperText>
@@ -180,19 +171,33 @@ export function ImageDownloader() {
           </FormControl>
 
           <FormControl>
-            <FormLabel htmlFor="propertyToExtract">
-              Property to extract:
+            <FormLabel htmlFor="imageUrlProperty">
+              Image URL property:
             </FormLabel>
             <Input
               type="text"
-              id="propertyToExtract"
-              value={propertyToExtract}
-              onChange={handlePropertyChange}
+              id="imageUrlProperty"
+              value={imageUrlProperty}
+              onChange={(e) => setImageUrlProperty(e.target.value)}
+              disabled={isDownloading}
+            />
+            <FormHelperText>
+              The property name from the JSON object which contains the value for
+              the image URL.
+            </FormHelperText>
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="idProperty">ID property:</FormLabel>
+            <Input
+              type="text"
+              id="idProperty"
+              value={idProperty}
+              onChange={(e) => setIdProperty(e.target.value)}
               disabled={isDownloading}
             />
             <FormHelperText>
               The property name of the JSON object which contains the value for
-              the image URL.
+              the ID. If no ID exists then the index will be used to name the file.
             </FormHelperText>
           </FormControl>
 
