@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, useEffect } from "react";
 import {
   Box,
   Button,
@@ -7,9 +7,16 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
+  HStack,
   Input,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
   Progress,
   SimpleGrid,
+  Spacer,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -17,11 +24,12 @@ import JSZip from "jszip";
 import { type Image } from "../components/ImageItem";
 import ImageItem from "./ImageItem";
 import AboutInfo from "./AboutInfo";
+import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
 export function ImageDownloader() {
   const [imageList, setImageList] = useState<JSON[]>([]);
   const [apiUrl, setApiUrl] = useState<string>(
-    "https://picsum.photos/v2/list?page=2&limit=100"
+    "https://picsum.photos/v2/list?page={page}&limit={limit}"
   );
   const [isDownloading, setIsDownloading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
@@ -30,11 +38,36 @@ export function ImageDownloader() {
   const [idProperty, setIdProperty] = useState<string>("id");
   const [selectedImages, setSelectedImages] = useState<number[]>([]);
   const [downloadProgress, setDownloadProgress] = useState(0);
+  const [page, setPage] = useState<number>();
+  const [limit, setLimit] = useState<number>();
+
+  useEffect(() => {
+    if (apiUrl && apiUrl.includes("{page}")) {
+      setPage(1);
+    } else {
+      setPage(undefined);
+    }
+
+    if (apiUrl && apiUrl.includes("{limit}")) {
+      setLimit(50);
+    } else {
+      setLimit(undefined);
+    }
+  }, [apiUrl]);
+
+  useEffect(() => {
+    if (page) {
+      fetchImageList();
+    }
+  }, [page, limit]);
 
   const fetchImageList = async () => {
     try {
       setIsFetching(true);
-      const response = await fetch(apiUrl);
+      const apiUrlWithReplacedPlaceholders = apiUrl
+        .replace("{page}", String(page ?? ""))
+        .replace("{limit}", String(limit ?? ""));
+      const response = await fetch(apiUrlWithReplacedPlaceholders);
       if (response.ok) {
         const data: JSON[] = await response.json();
         setImageList(data);
@@ -52,7 +85,7 @@ export function ImageDownloader() {
 
   const downloadImages = async () => {
     setIsDownloading(true);
-    setDownloadProgress(0);
+    setDownloadProgress(1);
     console.log("Starting image downloads...");
 
     const zip = new JSZip();
@@ -155,6 +188,7 @@ export function ImageDownloader() {
       <Container>
         <VStack gap="8">
           <AboutInfo />
+
           <FormControl>
             <FormLabel htmlFor="downloadURL">API download URL:</FormLabel>
             <Input
@@ -166,10 +200,10 @@ export function ImageDownloader() {
             />
             <FormHelperText>
               The URL of the API endpoint where the data should be retrieved
-              from.
+              from. Use placeholders <b>{"{page}"}</b> for enabling paging and{" "}
+              <b>{"{limit}"}</b> for enabling limiting.
             </FormHelperText>
           </FormControl>
-
           <FormControl>
             <FormLabel htmlFor="imageUrlProperty">
               Image URL property:
@@ -182,22 +216,23 @@ export function ImageDownloader() {
               disabled={isDownloading}
             />
             <FormHelperText>
-              The property name from the JSON object which contains the value for
-              the image URL.
+              The property name from the JSON object which contains the value
+              for the image URL.
             </FormHelperText>
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor="idProperty">ID property:</FormLabel>
+            <FormLabel htmlFor="idProperty">ID property (optional):</FormLabel>
             <Input
               type="text"
               id="idProperty"
               value={idProperty}
               onChange={(e) => setIdProperty(e.target.value)}
-              disabled={isDownloading}
+              isDisabled={isDownloading}
             />
             <FormHelperText>
               The property name of the JSON object which contains the value for
-              the ID. If no ID exists then the index will be used to name the file.
+              the ID. If no ID exists then the index will be used to name the
+              file.
             </FormHelperText>
           </FormControl>
 
@@ -208,6 +243,7 @@ export function ImageDownloader() {
           >
             Fetch Images
           </Button>
+
           <Button
             onClick={downloadImages}
             isDisabled={
@@ -223,26 +259,74 @@ export function ImageDownloader() {
               <Progress value={downloadProgress} size="md"></Progress>
             </Box>
           )}
-          <ButtonGroup>
-            <Button
-              onClick={() => selectAllImages()}
-              isDisabled={
-                isFetching ||
-                isDownloading ||
-                selectedImages.length === imageList.length
-              }
-            >
-              Select all
-            </Button>
-            <Button
-              onClick={selectNoneImages}
-              isDisabled={
-                isFetching || isDownloading || selectedImages.length === 0
-              }
-            >
-              Select none
-            </Button>
-          </ButtonGroup>
+
+          <HStack boxSize="full">
+            {page && (
+              <ButtonGroup>
+                <Button
+                  onClick={() => setPage((p) => (p > 1 ? p - 1 : p))}
+                  isDisabled={isFetching || isDownloading || page <= 1}
+                >
+                  <ChevronLeftIcon />
+                </Button>
+
+                <NumberInput
+                  defaultValue={page}
+                  value={page}
+                  onChange={(valueAsString: string) => setPage(+valueAsString)}
+                  min={1}
+                  isDisabled={isFetching || isDownloading}
+                  maxW={16}
+                >
+                  <NumberInputField textAlign="center" paddingInline="2" />
+                </NumberInput>
+                <Button
+                  onClick={() => setPage((p) => p + 1)}
+                  isDisabled={isFetching || isDownloading}
+                >
+                  <ChevronRightIcon />
+                </Button>
+              </ButtonGroup>
+            )}
+            <Spacer></Spacer>
+            <ButtonGroup>
+              <Button
+                onClick={() => selectAllImages()}
+                isDisabled={
+                  isFetching ||
+                  isDownloading ||
+                  selectedImages.length === imageList.length
+                }
+              >
+                Select all
+              </Button>
+              <Button
+                onClick={selectNoneImages}
+                isDisabled={
+                  isFetching || isDownloading || selectedImages.length === 0
+                }
+              >
+                Select none
+              </Button>
+            </ButtonGroup>
+            <Spacer></Spacer>
+            {limit && (
+              <NumberInput
+                defaultValue={limit}
+                value={limit}
+                onChange={(valueAsString: string) => setLimit(+valueAsString)}
+                min={1}
+                isDisabled={isFetching || isDownloading}
+                maxW={24}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+            )}
+          </HStack>
         </VStack>
       </Container>
       <SimpleGrid
