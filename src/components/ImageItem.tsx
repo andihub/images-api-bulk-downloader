@@ -104,7 +104,7 @@ const ImageItem: React.FC<ImageItemProps> = ({
           <ModalCloseButton />
           <ModalBody overflow="auto">
             <pre style={{ whiteSpace: "pre-wrap" }}>
-              {JSON.stringify(image, null, 2)}
+              {JSON.stringify(image.raw, null, 2)}
             </pre>
           </ModalBody>
 
