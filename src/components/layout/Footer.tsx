@@ -1,12 +1,15 @@
-import { Box, BoxProps, Container, Link, createIcon } from "@chakra-ui/react";
-import { Placeholder } from "./Placeholder";
-
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import {
+  Box,
+  BoxProps,
+  Center,
+  HStack,
+  Link,
+  createIcon,
+} from "@chakra-ui/react";
 
 export const GithubIcon = createIcon({
-  displayName: "UpDownIcon",
+  displayName: "GithubIcon",
   viewBox: "0 0 98 96",
-  // path can also be an array of elements, if you have multiple paths, lines, shapes, etc.
   path: (
     <path
       fill="currentColor"
@@ -17,19 +20,19 @@ export const GithubIcon = createIcon({
 
 export const Footer = (props: BoxProps) => {
   return (
-    <Box as="footer" role="contentinfo" py="8" {...props}>
-      <Container>
+    <Center as="footer" role="contentinfo" py="8" {...props}>
+      <HStack>
         <Link
           href="https://github.com/andihub/images-api-bulk-downloader"
           isExternal
         >
-          View source code <GithubIcon mx="2px" />
-        </Link>{" "}
-        - Pull requests welcome! 🚀 -{" "}
+          View source code <GithubIcon mx="2px" /> Pull requests welcome! 🚀
+        </Link>
+        <Box as="span">{" - "}</Box>
         <Link href="https://www.buymeacoffee.com/andidevc" isExternal>
           Buy me a coffee ☕️
         </Link>
-      </Container>
-    </Box>
+      </HStack>
+    </Center>
   );
 };
